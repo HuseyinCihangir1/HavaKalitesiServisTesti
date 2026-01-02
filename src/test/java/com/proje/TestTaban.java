@@ -9,13 +9,16 @@ public class TestTaban {
 
     @BeforeClass
     public static void kurulum() {
-        // API'nin temel adresi (Base URL) tanımlanıyor [cite: 2, 17]
+        // API'nin temel adresi (Base URL)
         RestAssured.baseURI = "http://api.openweathermap.org";
-        
-        // Ortak istek özellikleri (opsiyonel ama profesyonel bir yaklaşım)
+
+        // Ortak istek özellikleri: Tüm isteklerin JSON formatında gidip gelmesini
+        // sağlar.
         RestAssured.requestSpecification = new RequestSpecBuilder()
-            .setContentType(ContentType.JSON)
-            .setAccept(ContentType.JSON)
-            .build();
+                .setContentType(ContentType.JSON)
+                .setAccept(ContentType.JSON)
+                .build();
+
+        System.out.println("--- Test Hazirligi: BaseURI ve RequestSpecBuilder ayarlandi! ---");
     }
 }
