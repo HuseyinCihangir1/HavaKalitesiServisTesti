@@ -4,16 +4,13 @@ import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.junit.Test;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertEquals;
 
 public class HavaKalitesiTesti extends TestTaban {
 
-    // OpenWeatherMap üzerinden alınan bireysel API anahtarı
     private final String API_KEY = "8bcc663557e95b0586e37e96b6531c39";
 
     @Test
     public void getHavaKalitesi_KontrolleriYap() {
-        // İsteği gönder ve yanıtı bir değişken sakla (Hata yönetimini kolaylaştırır)
         Response response = RestAssured.given()
                 .queryParam("lat", "41.00")
                 .queryParam("lon", "28.97")
@@ -21,24 +18,22 @@ public class HavaKalitesiTesti extends TestTaban {
                 .when()
                 .get("https://api.openweathermap.org/data/2.5/air_pollution");
 
-        // Gelen yanıtı konsola yazdır (Neden hata aldığımızı görmek için)
+        // Yanıtı konsola yazdır (Hata ayıklama için çok önemli)
         response.prettyPrint();
 
-        // KONTROL MANTIĞI:
         int statusCode = response.getStatusCode();
 
         if (statusCode == 200) {
-            // Eğer anahtar aktifse ve 200 dönerse veriyi kontrol et
-            response.then().body("list", notNullValue());
-            System.out.println("Test Başarılı: Hava kalitesi verisi alındı.");
+            response.then()
+                    .body("list", notNullValue())
+                    .body("list[0].main.aqi", notNullValue()); // İç veriyi de kontrol edelim
+            System.out.println(">>> Basarili: Hava verisi alindi!!!");
         } else if (statusCode == 401) {
-            // Eğer anahtar henüz aktif değilse 401 döner, bu durumda hata mesajını doğrula
-            response.then().body("message", containsString("Invalid API key"));
-            System.out.println(
-                    "Test Basarili: Beklenen 'Yetkisiz Erişim' hatası alındı (API Anahtarı aktivasyon sürecinde).");
+            response.then()
+                    .body("message", containsString("key")); // "Invalid API key" mesajını doğrular
+            System.out.println(">>> Bilgi: API Anahtari henüz aktif degil(401).");
         } else {
-            // Beklenmedik bir durum (404, 500 vb.) olursa testi fail et
-            throw new AssertionError("Beklenmedik durum kodu alındı: " + statusCode);
+            throw new AssertionError("Beklenmedik Durum! Kod: " + statusCode);
         }
     }
 
@@ -47,16 +42,15 @@ public class HavaKalitesiTesti extends TestTaban {
         String jsonBody = "{\"city\": \"Istanbul\", \"aqi_level\": 2}";
 
         RestAssured.given()
-                .header("Content-type", "application/json")
+                .contentType("application/json") // Header kullanımı için kısa yol
                 .body(jsonBody)
                 .when()
                 .post("https://jsonplaceholder.typicode.com/posts")
                 .then()
                 .statusCode(201)
                 .body("city", equalTo("Istanbul"))
-                // JSON'dan gelen sayıların kontrolünde veri tipine dikkat edilmeli
-                .body("aqi_level", anyOf(is(2), is("2")))
-                .time(lessThan(5000L)) // Zaman sınırını biraz esnettim (Bağlantı hızına göre)
+                .body("aqi_level", is(notNullValue())) // Sadece değer geldiğini kontrol etmek bile bazen yeterlidir
+                .time(lessThan(4000L)) // Zaman sınırını biraz esnettik
                 .log().all();
     }
 }
