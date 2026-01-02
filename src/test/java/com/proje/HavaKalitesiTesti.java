@@ -35,7 +35,7 @@ public class HavaKalitesiTesti extends TestTaban {
             // Eğer anahtar henüz aktif değilse 401 döner, bu durumda hata mesajını doğrula
             response.then().body("message", containsString("Invalid API key"));
             System.out.println(
-                    "Test Başarılı: Beklenen 'Yetkisiz Erişim' hatası alındı (API Anahtarı aktivasyon sürecinde).");
+                    "Test Basarili: Beklenen 'Yetkisiz Erişim' hatası alındı (API Anahtarı aktivasyon sürecinde).");
         } else {
             // Beklenmedik bir durum (404, 500 vb.) olursa testi fail et
             throw new AssertionError("Beklenmedik durum kodu alındı: " + statusCode);
